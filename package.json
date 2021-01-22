@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "DominickDejesus <34385118+DominickDejsus@users.noreply.github.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^5.5.0"
+  }
 }
