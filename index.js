@@ -1,50 +1,34 @@
 const puppeteer = require("puppeteer"),
   $ = require("cheerio"),
-  URL = "https://www.oneplace.com/ministries/adventures-in-odyssey/listen",
-  TAG = "ul.episodesList.accordion-content li a";
-require("dotenv").config();
+  URL =
+    "https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440",
+  TAG = `data-sku-id="6429440"`;
+//require("dotenv").config();
 
-const getURLArray = async (url, tag) => {
-  const episodeURLs = [];
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  const html = await page.goto(url).then(function () {
-    return page.content();
-  });
-
-  $(tag, html).each((_, item) => {
-    episodeURLs.push($(item).attr("href"));
-  });
-
-  return episodeURLs;
-};
-
-const getTrackObj = async (sourceHTML) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  const html = await page.goto(sourceHTML).then(function () {
-    return page.content();
-  });
-  const trackObj = {};
-  trackObj.url = $("audio", html).attr("src");
-  trackObj.title = $("div.overlay2 h2", html).text();
-  trackObj.description = $("div.description p", html).text();
-
-  const testTrack = await Track.findOne({ title: trackObj.title });
-  if (testTrack) throw Error("Track already in database!");
-
-  const track = new Track(trackObj);
-  await track.save();
-  return track;
-};
-
-const addTrackToDB = async () => {
+const checkStock = async (sourceHTML) => {
   try {
-    const arr = await getURLArray(URL, TAG);
-    return await getTrackObj(arr[0].toString());
+    const browser = await puppeteer.launch();
+    console.log("browser created");
+    const page = await browser.newPage();
+    console.log("window created");
+    await page.goto(URL, {
+      waitUntil: "load",
+      // Remove the timeout
+      timeout: 0,
+    });
+    console.log("loading page");
+    const html = await page.content();
+
+    // trackObj.url = $("audio", html).attr("src");
+    // trackObj.title = $(`button[${TAG}]`, html).text();
+    const trackObj = $(`button[${TAG}]`, html).text();
+    //  const testTrack = await Track.findOne({ title: trackObj.title });
+    //if (testTrack) throw Error("Track already in database!");
+    console.log(trackObj);
+    return trackObj;
   } catch (error) {
-    console.log(error.toString());
+    console.log(error);
   }
 };
 
-module.exports = addTrackToDB;
+checkStock(URL).then();
