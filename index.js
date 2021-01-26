@@ -2,22 +2,20 @@ require("dotenv").config();
 const puppeteer = require("puppeteer"),
 	$ = require("cheerio"),
 	cron = require("node-schedule"),
-	rule = new cron.RecurrenceRule(),
 	URL =
 		"https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440",
-	TAG = `data-sku-id="6429440"`;
-
-rule.hour = 1;
-rule.minute = 0;
+	TAG = `button[data-sku-id="6429440"]`;
+let lastMessageDate = new Date("1995-12-17T03:24:00");
 
 //Entry function
 (async () => {
 	try {
-		sendTextNotification();
 		const browser = await puppeteer.launch({ headless: true });
 		console.log(getTimestamp(), " Browser created");
+
 		const page = await browser.newPage();
 		console.log(getTimestamp(), " Window created");
+
 		await page.goto(URL, {
 			waitUntil: "load",
 			// Remove the timeout
@@ -26,19 +24,16 @@ rule.minute = 0;
 
 		if (await isInStock(page, TAG)) {
 			sendTextNotification();
+			lastMessageDate = new Date();
 		}
-		console.log(getTimestamp(), " Page reloading");
-		await page.reload();
 
-		cron.scheduleJob(rule, async function () {
-			if (await isInStock(page, TAG)) {
+		cron.scheduleJob("*/5 * * * *", async function () {
+			if ((await isInStock(page, TAG)) && !isToday(lastMessageDate)) {
 				sendTextNotification();
+				lastMessageDate = new Date();
 			}
-			console.log(getTimestamp(), " Page reloading");
 			await page.reload();
 		});
-
-		await browser.close();
 	} catch (error) {
 		console.log(error);
 		await browser.close();
@@ -47,11 +42,12 @@ rule.minute = 0;
 
 async function isInStock(page, tag) {
 	try {
-		console.log(getTimestamp(), " Loading page");
+		console.log(getTimestamp(), " Loading page content");
 		const html = await page.content();
-		const buttonText = $(`button[${tag}]`, html).text();
+		const buttonText = $(tag, html).text();
+
 		if (buttonText.toLocaleLowerCase() === "sold out") {
-			console.log(getTimestamp(), " Out of stock!");
+			console.log(getTimestamp(), ` Out of stock! Tag content: ${buttonText}`);
 			return false;
 		}
 		console.log(getTimestamp(), " In stock!");
@@ -86,3 +82,12 @@ function getTimestamp() {
 		"]"
 	);
 }
+
+const isToday = (someDate) => {
+	const today = new Date();
+	return (
+		someDate.getDate() == today.getDate() &&
+		someDate.getMonth() == today.getMonth() &&
+		someDate.getFullYear() == today.getFullYear()
+	);
+};
