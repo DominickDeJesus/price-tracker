@@ -10,11 +10,12 @@ let lastMessageDate = new Date("1995-12-17T03:24:00");
 //Entry function
 (async () => {
 	try {
-		const browser = await puppeteer.launch({ headless: true });
+		const browser = await puppeteer.launch({ headless: true, executablePath: 'chromium-browser' });
 		console.log(getTimestamp(), " Browser created");
 
 		const page = await browser.newPage();
 		console.log(getTimestamp(), " Window created");
+		await page.setDefaultNavigationTimeout(0);
 
 		await page.goto(URL, {
 			waitUntil: "load",
