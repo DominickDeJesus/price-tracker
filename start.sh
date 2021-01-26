@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/pi/programs/price-tracker
-sudo -u pi node index.js >> /tmp/price-tracker.log &
+cd /home/pi/programs/supply-tracker
+sudo -u pi node index.js >> /tmp/supply-tracker.log &
