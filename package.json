@@ -16,7 +16,7 @@
   },
   "scripts": {
     "dev": "node index.js",
-    "logs": "cat /tmp/supply-tracker.log",
+    "logs": "tail -f /tmp/supply-tracker.log",
     "start": "node index.js >> /tmp/supply-tracker.log &"
   }
 }
