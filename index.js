@@ -1,17 +1,20 @@
 require("dotenv").config();
-const puppeteer = require("puppeteer"),
-  $ = require("cheerio"),
-  cron = require("node-schedule"),
-  URL =
-    "https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440",
-  TAG = `button[data-sku-id="${URL.split("skuId=")[1]}"]`;
+const puppeteer = require("puppeteer");
+const $ = require("cheerio");
+const cron = require("node-schedule");
+const URL =
+  "https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440";
+constTAG = `button[data-sku-id="${URL.split("skuId=")[1]}"]`;
 let lastMessageDate = new Date("1995-12-17T03:24:00");
-console.log(TAG);
+const isWin = process.platform === "win32";
+
 //Entry function
 (async () => {
   try {
+    const browserOption = isWin ? null : { executablePath: "chromium-browser" };
     const browser = await puppeteer.launch({
       headless: true,
+      ...browserOption,
     });
     console.log(getTimestamp(), " Browser created");
 
