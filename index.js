@@ -4,7 +4,7 @@ const $ = require("cheerio");
 const cron = require("node-schedule");
 const URL =
   "https://www.bestbuy.com/site/nvidia-geforce-rtx-3080-10gb-gddr6x-pci-express-4-0-graphics-card-titanium-and-black/6429440.p?skuId=6429440";
-constTAG = `button[data-sku-id="${URL.split("skuId=")[1]}"]`;
+const TAG = `button[data-sku-id="${URL.split("skuId=")[1]}"]`;
 let lastMessageDate = new Date("1995-12-17T03:24:00");
 const isWin = process.platform === "win32";
 
