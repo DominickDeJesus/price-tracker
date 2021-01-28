@@ -56,7 +56,7 @@ async function isInStock(page, tag) {
       console.log(getTimestamp(), ` Out of stock! Tag content: ${buttonText}`);
       return false;
     }
-    console.log(getTimestamp(), " In stock! ", buttonText);
+    console.log(getTimestamp(), " In stock!!! Tag content: ", buttonText);
     return true;
   } catch (error) {
     console.log(error);
