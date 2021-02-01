@@ -42,7 +42,6 @@ const isWin = process.platform === "win32";
     });
   } catch (error) {
     console.log(error);
-    await browser.close();
   }
 })();
 
@@ -55,9 +54,17 @@ async function isInStock(page, tag) {
     if (buttonText.toLocaleLowerCase() === "sold out") {
       console.log(getTimestamp(), ` Out of stock! Tag content: ${buttonText}`);
       return false;
+    } else if (buttonText.toLocaleLowerCase().includes("add")) {
+      console.log(getTimestamp(), " In stock!!! Tag content: ", buttonText);
+      return true;
+    } else {
+      console.log(
+        getTimestamp(),
+        " Button content unkown! Tag content: ",
+        buttonText
+      );
+      return false;
     }
-    console.log(getTimestamp(), " In stock!!! Tag content: ", buttonText);
-    return true;
   } catch (error) {
     console.log(error);
     return false;
