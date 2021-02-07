@@ -27,16 +27,11 @@ const isWin = process.platform === "win32";
 			// Remove the timeout
 			timeout: 0,
 		});
-		await page.focus(TAG);
-		await page.screenshot({
-			path: `./screenshots/${lastMessageDate}-screenshot.png`,
-			fullPage: true,
-		});
-
 		if (await isInStock(page, TAG)) {
 			lastMessageDate = new Date();
 			await page.screenshot({
 				path: `./screenshots/${lastMessageDate}-screenshot.png`,
+				fullPage: true,
 			});
 			sendTextNotification();
 		}
