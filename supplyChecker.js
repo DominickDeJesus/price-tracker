@@ -180,7 +180,7 @@ class SupplyChecker {
 		console.log(style, time, this.name + ":", ...message);
 	}
 
-	isToday = (someDate) => {
+	isToday(someDate) {
 		if (!someDate) return false;
 		const today = new Date();
 		return (
@@ -188,7 +188,7 @@ class SupplyChecker {
 			someDate.getMonth() == today.getMonth() &&
 			someDate.getFullYear() == today.getFullYear()
 		);
-	};
+	}
 }
 
 module.exports = SupplyChecker;
