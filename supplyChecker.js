@@ -14,6 +14,7 @@ class SupplyChecker {
 			process.platform === "linux"
 				? {
 						args: ["--no-sandbox", "--disable-setuid-sandbox"],
+						executablePath: "chromium-browser",
 				  }
 				: null;
 	}
