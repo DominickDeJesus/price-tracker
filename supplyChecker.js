@@ -52,7 +52,7 @@ class SupplyChecker {
 	}
 
 	async checkStock() {
-		try{
+		try {
 			if (!this.finishedInit)
 				throw new Error("SupplyChecker has not been initialized!");
 			this.status = "loading";
@@ -74,8 +74,8 @@ class SupplyChecker {
 			}
 			this.status = "waiting";
 			return false;
-		} catch(error){
-			this.print("error", this.name, error);	
+		} catch (error) {
+			this.print("error", this.name, error);
 		}
 	}
 
@@ -128,10 +128,8 @@ class SupplyChecker {
 		const cloudinary = require("cloudinary").v2;
 		this.lastMessageDate = new Date();
 		const tempPath = `./screenshot.png`;
-		await this.page.screenshot({
-			path: tempPath,
-			fullPage: true,
-		});
+		const element = await this.page.$(this.tag);
+		await element.screenshot({ path: tempPath });
 		const response = await cloudinary.uploader.upload(tempPath);
 		this.lastScreenPath = response.secure_url;
 	}
@@ -180,7 +178,7 @@ class SupplyChecker {
 				style = "\x1b[32m\x1b[4m";
 				break;
 			default:
-				style = "";
+				style = "\x1b[0m";
 		}
 		console.log(style, time, this.name + ":", ...message);
 	}
