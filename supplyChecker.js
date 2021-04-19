@@ -52,27 +52,31 @@ class SupplyChecker {
 	}
 
 	async checkStock() {
-		if (!this.finishedInit)
-			throw new Error("SupplyChecker has not been initialized!");
-		this.status = "loading";
-		this.print("info", "checking stock");
-		await this.page.reload({
-			waitUntil: "load",
-		});
-		this.print("info", "reloaded");
-		await this.page.waitForSelector(this.tag);
+		try{
+			if (!this.finishedInit)
+				throw new Error("SupplyChecker has not been initialized!");
+			this.status = "loading";
+			this.print("info", "checking stock");
+			await this.page.reload({
+				waitUntil: "load",
+			});
+			this.print("info", "reloaded");
+			await this.page.waitForSelector(this.tag);
 
-		if (
-			(await this.isInStock(this.page, this.tag)) &&
-			!isToday(this.lastMessageDate)
-		) {
-			await this.screenshot();
-			await this.sendTextNotification(this.url);
+			if (
+				(await this.isInStock(this.page, this.tag)) &&
+				!this.isToday(this.lastMessageDate)
+			) {
+				await this.screenshot();
+				await this.sendTextNotification(this.url);
+				this.status = "waiting";
+				return true;
+			}
 			this.status = "waiting";
-			return true;
+			return false;
+		} catch(error){
+			this.print("error", this.name, error);	
 		}
-		this.status = "waiting";
-		return false;
 	}
 
 	async isInStock(page, tag) {
