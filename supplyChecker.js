@@ -13,7 +13,7 @@ class SupplyChecker {
 		this.browserOption =
 			process.platform === "linux"
 				? {
-						args: ["--no-sandbox"],
+						args: ["--no-sandbox", "--disable-setuid-sandbox"],
 				  }
 				: null;
 	}
