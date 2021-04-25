@@ -179,9 +179,17 @@ class SupplyChecker {
 				this.negativeString = "sold out";
 				break;
 			case "walmart.com":
-			//TODO implement support for walmart
+				//TODO: test these values thoroughly
+				this.tag = `.spin-button-children`;
+				this.positiveString = "add to cart";
+				this.negativeString = "get in-stock alert.";
+				break;
 			case "newegg.com":
-			//TODO implement support for newegg
+				//TODO: test these values thoroughly
+				this.tag = `.product-inventory strong`;
+				this.positiveString = "in stock.";
+				this.negativeString = "out of stock.";
+				break;
 			default:
 				throw Error("This website is not supported!");
 		}
