@@ -190,6 +190,12 @@ class SupplyChecker {
 				this.positiveString = "in stock.";
 				this.negativeString = "out of stock.";
 				break;
+			case "newegg.com":
+				//TODO: test these values thoroughly
+				this.tag = `.add-to-cart`;
+				this.positiveString = "add to cart";
+				this.negativeString = "not available";
+				break;
 			default:
 				throw Error("This website is not supported!");
 		}
