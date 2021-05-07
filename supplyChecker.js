@@ -32,6 +32,9 @@ class SupplyChecker {
 		});
 
 		this.page = await this.browser.newPage();
+		this.page.setUserAgent(
+			`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36`
+		);
 		await this.page.setDefaultNavigationTimeout(0);
 		await this.page.setRequestInterception(true);
 
@@ -53,6 +56,7 @@ class SupplyChecker {
 		this.finishedInit = true;
 		this.status = "initialized";
 		this.print("info", "Finished initializing");
+		this.checkStock();
 	}
 
 	async checkStock() {
@@ -66,6 +70,7 @@ class SupplyChecker {
 			});
 			this.print("info", "reloaded");
 			await this.page.waitForSelector(this.tag);
+			// await this.page.waitForNavigation();
 
 			if (
 				(await this.isInStock(this.page, this.tag)) &&
@@ -190,7 +195,7 @@ class SupplyChecker {
 				this.positiveString = "in stock.";
 				this.negativeString = "out of stock.";
 				break;
-			case "newegg.com":
+			case "gamestop.com":
 				//TODO: test these values thoroughly
 				this.tag = `.add-to-cart`;
 				this.positiveString = "add to cart";
