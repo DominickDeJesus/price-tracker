@@ -9,7 +9,8 @@ class SupplyChecker {
 		this.url = url.toLocaleLowerCase();
 		this.lastMessageDate = null;
 		this.lastScreenPath = null;
-		this.tag = `button[data-sku-id="${this.url.split("skuid=")[1]}"]`;
+		this.tag = null;
+		this.positiveString = null;
 		this.browserOption =
 			process.platform === "linux"
 				? {
@@ -18,16 +19,22 @@ class SupplyChecker {
 				  }
 				: null;
 	}
+
 	async init() {
 		if (this.status !== "uninitialized") return;
 		this.print("info", "Initializing browser");
 
+		const hostName = this.getHostName(this.url);
+		this.setupForWebsite(hostName);
 		this.browser = await puppeteer.launch({
 			headless: true,
 			...this.browserOption,
 		});
 
 		this.page = await this.browser.newPage();
+		this.page.setUserAgent(
+			`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36`
+		);
 		await this.page.setDefaultNavigationTimeout(0);
 		await this.page.setRequestInterception(true);
 
@@ -49,6 +56,7 @@ class SupplyChecker {
 		this.finishedInit = true;
 		this.status = "initialized";
 		this.print("info", "Finished initializing");
+		this.checkStock();
 	}
 
 	async checkStock() {
@@ -62,6 +70,7 @@ class SupplyChecker {
 			});
 			this.print("info", "reloaded");
 			await this.page.waitForSelector(this.tag);
+			// await this.page.waitForNavigation();
 
 			if (
 				(await this.isInStock(this.page, this.tag)) &&
@@ -86,13 +95,13 @@ class SupplyChecker {
 		try {
 			this.print("info", "Loading page content");
 			const html = await page.content();
-			const buttonText = $(tag, html).text();
+			const buttonText = $(tag, html).text().trim().toLocaleLowerCase();
 
-			if (buttonText.toLocaleLowerCase() === "sold out") {
+			if (buttonText.includes(this.negativeString)) {
 				this.print("info", `Out of stock! Tag content: ${buttonText}`);
 				return false;
-			} else if (buttonText.toLocaleLowerCase().includes("add")) {
-				this.print("instock", "In stock!!! Tag content: ", buttonText);
+			} else if (buttonText.includes(this.positiveString)) {
+				this.print("instock", `In stock!!! Tag content: ${buttonText}`);
 				return true;
 			} else {
 				this.screenshot();
@@ -113,7 +122,7 @@ class SupplyChecker {
 		this.status = "changing";
 		this.url = url.toLocaleLowerCase();
 		this.lastMessageDate = null;
-		this.tag = `button[data-sku-id="${url.split("skuid=")[1]}"]`;
+		setupForWebsite(this.tag);
 		await this.page.goto(this.url, {
 			waitUntil: "load",
 		});
@@ -133,6 +142,7 @@ class SupplyChecker {
 		const response = await cloudinary.uploader.upload(tempPath);
 		this.lastScreenPath = response.secure_url;
 	}
+
 	async sendTextNotification(url) {
 		if (!this.finishedInit)
 			throw new Error("SupplyChecker has not been initialized!");
@@ -157,6 +167,56 @@ class SupplyChecker {
 				"Something went wrong, message was not sent\n",
 				error
 			);
+		}
+	}
+
+	setupForWebsite(website) {
+		switch (website) {
+			case "amazon.com":
+				this.tag = `#availability span`;
+				this.positiveString = "in stock.";
+				this.negativeString =
+					"we don't know when or if this item will be back in stock.";
+				break;
+			case "bestbuy.com":
+				this.tag = `button[data-sku-id="${this.url.split("skuid=")[1]}"]`;
+				this.positiveString = "add";
+				this.negativeString = "sold out";
+				break;
+			case "walmart.com":
+				//TODO: test these values thoroughly
+				this.tag = `.spin-button-children`;
+				this.positiveString = "add to cart";
+				this.negativeString = "get in-stock alert.";
+				break;
+			case "newegg.com":
+				//TODO: test these values thoroughly
+				this.tag = `.product-inventory strong`;
+				this.positiveString = "in stock.";
+				this.negativeString = "out of stock.";
+				break;
+			case "gamestop.com":
+				//TODO: test these values thoroughly
+				this.tag = `.add-to-cart`;
+				this.positiveString = "add to cart";
+				this.negativeString = "not available";
+				break;
+			default:
+				throw Error("This website is not supported!");
+		}
+	}
+
+	getHostName(url) {
+		const match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+		if (
+			match != null &&
+			match.length > 2 &&
+			typeof match[2] === "string" &&
+			match[2].length > 0
+		) {
+			return match[2];
+		} else {
+			return null;
 		}
 	}
 
