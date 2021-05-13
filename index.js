@@ -12,7 +12,7 @@ const AMAZON =
 const GAMESTOP =
 	"https://www.gamestop.com/electronics/cell-phones/accessories/chargers-power-adapters/products/star-wars-millennium-falcon-wireless-charger-with-ac-adapter-only-at-gamestop/11095928.html";
 
-const sc = new SupplyChecker(GAMESTOP, "Playstation");
+const sc = new SupplyChecker(GPU, "GPU-BB");
 sc.init()
 	.then(() =>
 		cron.scheduleJob("*/5 * * * *", async function () {
